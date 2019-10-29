@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { Recipe } from '../recipes/recipe.model';
 import { RecipeService } from '../recipes/recipe.service';
+import { AuthService } from '../auth/auth.service';
 
-import { map, tap } from 'rxjs/operators';
+import { map, tap, take, exhaustMap } from 'rxjs/operators';
 
 @Injectable()
 export class DataStorageService {
     constructor(private http: HttpClient,
-                private recipeService: RecipeService) {}
+        private recipeService: RecipeService,
+        private authService: AuthService) { }
 
     // Save recipes to database (Firebase)
     saveRecipes() {
@@ -24,21 +26,23 @@ export class DataStorageService {
             }, error => {
                 console.log('Error', error.message);
             }
-        ); 
+            );
     }
 
     // Fetch recipes from database (Firebase)
     fetchRecipes() {
-        /**
-         * When we're fetching the recipes, it would make sense that
-         * we make sure that we always have ingredients, even if it's
-         * just an empty array, but the data we loaded in the end has
-         * has some ingredients and ingredients property is not undefined.
-         * And for that, we can transform our data.
-         */
         return this.http
-            .get<Recipe[]>('https://recipe-book-e72c8.firebaseio.com/recipes.json')
+            .get<Recipe[]>(
+                'https://recipe-book-e72c8.firebaseio.com/recipes.json'
+            )
             .pipe(
+                /**
+                 * When we're fetching the recipes, it would make sense that
+                 * we make sure that we always have ingredients, even if it's
+                 * just an empty array, but the data we loaded in the end has
+                 * has some ingredients and ingredients property is not undefined.
+                 * And for that, we can transform our data.
+                 */
                 map(recipes => {
                     // Recipe that might do not have an ingredients property
                     return recipes.map(recipe => {
@@ -46,16 +50,19 @@ export class DataStorageService {
                          * Return the original recipe but if that recipe doesn't have
                          * an ingredient array, set ingredients to an empty array instead
                          */
-                        return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : []}
+                        return {
+                            ...recipe,
+                            ingredients: recipe.ingredients ? recipe.ingredients : []
+                        }
                     });
                     /**
                      * Tap operator allows us to execute some code without
                      * altering the data that is funneled through observable
                      */
-                }), 
+                }),
                 tap(recipes => {
                     this.recipeService.setRecipes(recipes);
                 })
-            )
+            );
     }
 }
