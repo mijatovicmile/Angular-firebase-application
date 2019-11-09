@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-auth',
-    templateUrl: '/auth.component.html'
+    templateUrl: './auth.component.html'
 })
 
 export class AuthComponent {
