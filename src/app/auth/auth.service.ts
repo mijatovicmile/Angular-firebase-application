@@ -8,6 +8,8 @@ import { throwError, BehaviorSubject } from 'rxjs';
 import { User } from './user.model';
 import { Router } from '@angular/router';
 
+import { environment } from 'src/environments/environment.prod';
+
 /**
  * Service which will be responsible for
  * signing user in, signing in, managing token of user
@@ -34,7 +36,7 @@ export class AuthService {
 
     // Sign up 
     signup(email: string, password: string) {
-        const api_key = "AIzaSyAGLtWjTAT6UiDmKYo4QGfh-6ayNrS5QWY"
+        const api_key = environment.firebaseAPIKey;
         const url = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" + api_key;
 
         return this.http.post<AuthResponseData>(url,
