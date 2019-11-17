@@ -66,7 +66,7 @@ export class AuthService {
 
     // Login
     login(email: string, password: string) {
-        const api_key = "AIzaSyAGLtWjTAT6UiDmKYo4QGfh-6ayNrS5QWY"
+        const api_key = environment.firebaseAPIKey
         const url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + api_key;
 
         return this.http.post<AuthResponseData>(url,
